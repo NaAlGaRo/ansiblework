@@ -1,7 +1,11 @@
 ---
 - hosts: web
-  roles:
-    - role: gantsign.maven
-      maven_version: '3.3.9'
-      maven_is_default_installation: true
-      maven_fact_group_name: maven
+  tasks:
+   - name: Update all Ubuntu packages
+     apt:
+         update_cache: yes
+         cache_valid_time: 3600
+   - name: Install required Ubuntu packages
+     apt:
+         name: openjdk-8-jdk
+         state: present
