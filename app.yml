@@ -38,35 +38,35 @@
       apt:
          name: openjdk-11-jdk
          state: present
+
     - name: Install Git
       apt:
          name: git
          state: present
 
-    - name: Add group "Tomcat"
-      group: name=tomcat
+    - name: Create a Tomcat Directory
+      file:
+        path: /opt/tomcat9
+        owner: tomcat
+        group: tomcat
+        mode: 755
+        recurse: yes
 
-    - name: Add user "Tomcat"
-      user: name=tomcat group=tomcat createhome=yes
-      become: true
+    - name: download & unarchive tomcat9
+      unarchive:
+        src: https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.79/bin/apache-tomcat-9.0.79.tar.gz
+        dest: /opt/tomcat9
+        remote_src: yes
+        extra_opts: [ --strip-components=1 ]
 
-    - name: download tomcat
-      src: https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.79/bin/apache-tomcat-9.0.79.tar.gz
-      dest: /opt/tomcat9
-      remote_src: yes
-      extra_opts: [--strip-components=1]
-
-    - name: copy Tomcat
-      copy: src=./apache-tomcat-9.0.79.tar.gz dest=/opt/apache-tomcat-9.0.79.tar.gz
-
-    - name: Change ownership of Tomcat installation
-      file: path=/opt/apache-tomcat-9.0.79 owner=tomcat group=tomcat state=directory recurse=yes
-
-    - name: Configure Tomcat server
-      template: src=server.xml dest=/opt/apache-tomcat-9.0.79/conf/
-
-    - name: Configure Tomcat users
-      template: src=tomcat-users.xml dest=/opt/apache-tomcat-9.0.79/conf/
+    - name: Change ownership of tomcat directory
+      file:
+        path: /opt/tomcat9
+        owner: tomcat
+        group: tomcat
+        mode: "u+rwx,g+rx,o=rx"
+        recurse: yes
+        state: directory
 
     - name: Start Tomcat
       command: nohup /opt/apache-tomcat-9.0.79/bin/startup.sh
