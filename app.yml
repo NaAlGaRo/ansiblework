@@ -23,3 +23,7 @@
        dest: /home/nar/projects/
        clone: yes
        update: yes
+   - name: Go to the folder
+     command: chdir=/home/nar/projects/
+   - name: Running mvn package
+     shell: "mvn package"
