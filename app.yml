@@ -43,34 +43,36 @@
          name: git
          state: present
 
-    - name: New group and user for Tomcat.
-      shell: "groupadd tomcat && useradd -s /bin/false -g tomcat -d /opt/tomcat tomcat"
+    - name: Add group "Tomvat"
+      group: name=tomcat
 
-    - name: Installating curl.
-      apt: name=curl state=latest
+    - name: Add user "Tomcat"
+      user: name=tomcat group=tomcat createhome=yes
+      become: true
 
-    - name: Downloading Apache Tomcat tar.
-      shell: wget http://us.mirrors.quenda.co/apache/tomcat/tomcat-8/v8.5.56/bin/apache-tomcat-8.5.56.tar.gz
-      args:
-         chdir: /tmp
-    - name: Creating Apache Tomcat home directory.
-      command: mkdir /opt/tomcat
+    - name: download & unarchive tomcat10
+      unarchive:
+        src: https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.79/bin/apache-tomcat-9.0.79.tar.gz
+        dest: /opt/tomcat9
+        remote_src: no
+        extra_opts: [--strip-components=1]
 
-    - name: Extracting Apache Tomcat.
-      shell: tar -xzvf /tmp/apache-tomcat-8*tar.gz -C /opt/tomcat --strip-components=1
+    - name: copy Tomcat
+      copy: src=./aapache-tomcat-9.0.79.tar.gz dest=/opt/apache-tomcat-9.0.79.tar.gz
 
-    - name: Updating permission.
-      command: "{{ item }}"
-      with_items:
-           - chown -R tomcat:tomcat /opt/tomcat
-           - chmod -R g+r /opt/tomcat/conf
-           - chmod g+x /opt/tomcat/conf
+    - name: Change ownership of Tomcat installation
+      file: path=/opt/apache-tomcat-9.0.79 owner=tomcat group=tomcat state=directory recurse=yes
 
-    - name: Creating service for Apache tomcat.
-      file:
-         path: /etc/systemd/system/tomcat.service
-         state: touch
-         mode: u+rwx,g-rwx,o-x
+    - name: Configure Tomcat server
+      template: src=server.xml dest=/opt/apache-tomcat-9.0.79/conf/
 
-    - name: Starting Apache Tomcat service.
-      service: name=tomcat state=started
+    - name: Configure Tomcat users
+      template: src=tomcat-users.xml dest=/opt/apache-tomcat-9.0.79/conf/
+
+    - name: Start Tomcat
+      command: nohup /opt/apache-tomcat-9.0.79/bin/startup.sh
+      become: true
+      become_user: tomcat
+
+    - name: wait for tomcat to start
+      wait_for: port=8080
