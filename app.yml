@@ -1,29 +1,7 @@
 ---
 - hosts: web
-
-  tasks:
-  - name: Update APT package manager repositories cache
-    become: true
-    apt:
-      update_cache: yes
-
-  - name: Download Maven
-    become: true
-    get_url: url=https://dlcdn.apache.org/maven/maven-3/3.9.4/binaries/apache-maven-3.9.4-bin.tar.gz dest=/tmp/apache-maven-3.9.4-bin.tar.gz
-
-  - name: Unpack Maven
-    become: true
-    shell: chdir=/tmp creates=/opt/apache-maven-3.9.4 tar -zxf apache-maven-3.9.4-bin.tar.gz -C /opt
-
-  - name: Set MAVEN_HOME
-    become: true
-    lineinfile:
-      dest: /etc/profile.d/maven.sh
-      create: yes
-      state: present
-      mode: '0744'
-      line: '{{ item }}'
-    with_items:
-      - 'export M2_HOME=/opt/apache-maven-3.9.4'
-      - 'export MAVEN_HOME=/opt/apache-maven-3.9.4'
-      - 'export PATH=${M2_HOME}/bin:${PATH}'
+  roles:
+    - role: gantsign.maven
+      maven_version: '3.3.9'
+      maven_is_default_installation: true
+      maven_fact_group_name: maven
