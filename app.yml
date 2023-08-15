@@ -3,9 +3,27 @@
   tasks:
    - name: Update all Ubuntu packages
      apt:
-         update_cache: yes
-         cache_valid_time: 3600
-   - name: Install required Ubuntu packages
+       update_cache: yes
+       cache_valid_time: 3600
+   - name: Install JDK8 packages
      apt:
-         name: openjdk-8-jdk
-         state: present
+       name: openjdk-8-jdk
+       state: present
+   - name: Download Apache Maven
+     become: true
+     get_url: url=https://dlcdn.apache.org/maven/maven-3/3.9.4/binaries/apache-maven-3.9.4-bin.tar.gz dest=/tmp/apache-maven-3.9.4-bin.tar.gz
+   - name: Unpack Maven
+     become: true
+     shell: chdir=/tmp creates=/opt/apache-maven-3.9.4-bin.tar.gz tar -zxf apache-maven-3.9.4-bin.tar.gz -C /opt
+   - name: Set MAVEN_HOME
+     become: true
+     lineinfile:
+       dest: /etc/profile.d/maven.sh
+       create: yes
+       state: present
+       mode: '0744'
+       line: '{{ item }}'
+     with_items:
+         - 'export M2_HOME=/opt/apache-maven-3.9.4'
+         - 'export MAVEN_HOME=/opt/apache-maven-3.9.4'
+         - 'export PATH=${M2_HOME}/bin:${PATH}'
