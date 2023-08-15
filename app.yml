@@ -5,9 +5,9 @@
      apt:
        update_cache: yes
        cache_valid_time: 3600
-   - name: Install JDK8 packages
+   - name: Install JDK11 packages
      apt:
-       name: openjdk-8-jdk
+       name: openjdk-11-jdk
        state: present
    - name: Install Apache Maven
      apt:
@@ -33,36 +33,39 @@
       apt:
          update_cache: yes
          cache_valid_time: 3600
-    - name: Install JDK8 packages
+    - name: Install JDK11 packages
       apt:
-         name: openjdk-8-jdk
+         name: openjdk-11-jdk
          state: present
     - name: Install Git
       apt:
          name: git
          state: present
-    - name: Create a Tomcat User
-      user:
-        name: tomcat
     - name: Create a Tomcat Group
       group:
         name: tomcat
+    - name: Create a Tomcat User
+      user:
+        name: tomcat
+        group: tomcat
+        home: /user/share/tomcat
+        createhome: no
     - name: Create a Tomcat Directory
       file:
-        path: /opt/tomcat9
+        path: /opt/tomcat
         owner: tomcat
         group: tomcat
-        mode: 755
+        mode: 0755
         recurse: yes
     - name: Download & Unarchive Tomcat
       unarchive:
           src: https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.79/bin/apache-tomcat-9.0.79.tar.gz
-          dest: /opt/tomcat9
+          dest: /opt/tomcat
           remote_src: yes
           extra_opts: [ --strip-components=1 ]
     - name: Change ownership of tomcat directory
       file:
-          path: /opt/tomcat9
+          path: /opt/tomcat
           owner: tomcat
           group: tomcat
           mode: "u+rwx,g+rx,o=rx"
