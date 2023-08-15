@@ -13,3 +13,7 @@
      apt:
        name: maven
        state: present
+   - name: Install Git
+     apt:
+       name: git
+       state: present
