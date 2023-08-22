@@ -44,6 +44,10 @@
          name: git
          state: present
 
+    - name: Add user "Tomcat"
+      user: name=tomcat group=tomcat createhome=yes
+      become: true
+
     - name: Create a Tomcat Directory
       file:
         path: /opt/tomcat9
