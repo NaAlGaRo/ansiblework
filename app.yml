@@ -85,3 +85,4 @@
         src: /home/nar/projects/target/hello-1.0.war
         dest: /opt/tomcat9/webapps/hello-1.0.war
       delegate_to: 158.160.116.246
+      delegate_facts: true
