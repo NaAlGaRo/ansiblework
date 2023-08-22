@@ -45,7 +45,7 @@
          state: present
 
     - name: Add user "Tomcat"
-      user: name=tomcat group=tomcat createhome=yes
+      user: name=tomcat createhome=yes
       become: true
 
     - name: Create a Tomcat Directory
